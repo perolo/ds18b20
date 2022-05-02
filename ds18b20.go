@@ -10,6 +10,9 @@ import (
 )
 
 var ErrReadSensor = errors.New("failed to read sensor temperature")
+var ErrReadSensorCrC = errors.New("failed to read sensor temperature, CRC")
+var ErrReadSensorTemp = errors.New("failed to read sensor temperature, Temp")
+var ErrReadSensorFloat = errors.New("failed to read sensor temperature, Float")
 
 // Sensors get all connected sensor IDs as array
 func Sensors() ([]string, error) {
@@ -36,17 +39,17 @@ func Temperature(sensor string) (float64, error) {
 	raw := string(data)
 
 	if !strings.Contains(raw, " YES") {
-		return 0.0, ErrReadSensor
+		return 0.0, ErrReadSensorCrC
 	}
 
 	i := strings.LastIndex(raw, "t=")
 	if i == -1 {
-		return 0.0, ErrReadSensor
+		return 0.0, ErrReadSensorTemp
 	}
 
 	c, err := strconv.ParseFloat(raw[i+2:len(raw)-1], 64)
 	if err != nil {
-		return 0.0, ErrReadSensor
+		return 0.0, ErrReadSensorFloat
 	}
 
 	return c / 1000.0, nil
